@@ -165,6 +165,22 @@ def get_people_id(people_id):
         return jsonify({'msg': 'People not found'}), 400
     else:
         return jsonify({'msg': 'ok', 'inf': people.serialize()})
+    
+# Tablas favoritos  El resultado que me devuelve es en numero y supongo q debe ser en string
+@app.route('/user/<int:id_user>/favorites', methods=['GET'])
+def get_favorites_de_user_planet(id_user):
+    favorites_planet = Favorites_Planets.query.filter_by(user_id = id_user).all()
+    favorites_people = Favorites_People.query.filter_by(user_id = id_user).all()
+    favorites_list1 = list(map(lambda favorite: favorite.serialize(), favorites_planet))
+    favorites_list2 = list(map(lambda favorite: favorite.serialize(), favorites_people))
+    favorites_list1.extend(favorites_list2)
+    return jsonify({'msg': 'ok', 'inf': favorites_list1})
+
+@app.route('/user/<int:id_user>/favorites', methods=['GET'])
+def get_favorites_de_user_people(id_user):
+    favorites = Favorites_People.query.filter_by(user_id = id_user).all()
+    favorites_list = list(map(lambda favorite: favorite.serialize(), favorites))
+    return jsonify({'msg': 'ok', 'inf': favorites_list})
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
