@@ -20,3 +20,23 @@ class User(db.Model):
             "name" : self.name,
             # do not serialize the password, its a security breach
         }
+class Planets(db.Model):
+    __tablename__ = 'planets'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    diameter = db.Column(db.Integer)
+    rotation_period = db.Column(db.Integer)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    
+  
+    def __repr__(self):
+        return '<Planets %r>' % self.id
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "diameter": self.diameter,
+            "rotation_period": self.rotation_period,
+            
+        }
