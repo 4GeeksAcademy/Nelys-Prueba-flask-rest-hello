@@ -61,13 +61,13 @@ class People(db.Model):
             
         }
 class Favorites_Planets(db.Model):
-    __tablename__='favorites_planets'
+    __tablename__ = 'favorites_planets'
     id = db.Column(db.Integer, primary_key=True)
     planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
     planets_relationship = db.relationship(Planets)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_relationship = db.relationship(Planets)
-    
+    user_relationship = db.relationship(User)
+
     def __repr__(self):
         return '<Favorites_Planets %r>' % self.id
 
