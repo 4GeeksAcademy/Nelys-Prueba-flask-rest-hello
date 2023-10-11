@@ -83,6 +83,65 @@ def update_user(user_id):
     db.session.commit()
     return jsonify({'msg':'ok'}), 200
 
+#Metodos de Tabla Planets
+
+@app.route('/planets', methods=['GET'])
+def get_planet():
+    planets = Planets.query.all()  
+    planets_list = list(map(lambda planets: planets.serialize(), planets))
+    return jsonify(planets_list), 200
+
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_planet_id(planet_id):
+    planet = Planets.query.get(planet_id)
+    if planet is None:
+        return jsonify({'msg': 'Planet not found'}), 400
+    else:
+        return jsonify({'msg': 'ok', 'inf': planet.serialize()})
+
+
+@app.route('/planets', methods=['POST'])
+def create_planet():
+    body = request.get_json(silent=True)
+    print(body)
+    if body is None:
+        return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
+    if 'name' not in body:
+        return jsonify({'msg': 'Debes enviar un nombre en el body'}), 400
+    
+    new_planet = Planets()
+    new_planet.name = body['name']
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return jsonify({'msg': 'ok'}),200
+    
+@app.route('/planets/<int:planet_id>', methods=['PUT'])
+def update_planets(planet_id):
+    planet = Planets.query.get(planet_id)
+    if planet is None:
+        return jsonify({'msg': 'El planeta de id:{} no existe'.format(planet_id)})
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
+    if 'name' in body:
+        planet.name = body['name']
+    if 'diameter' in body:
+        planet.diameter = body['diameter']
+    if 'rotation_period' in body:
+        planet.rotation_period = body['rotation_period']
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
+
+@app.route('/planets/<int:planet_id>', methods=['DELETE'])
+def delete_planet(planet_id):
+    planet = Planets.query.get(planet_id)
+    if planet is None:
+        raise APIException('El planeta con id {} no existe'.format(planet_id), status_code=400)
+    db.session.delete(planet)
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
+
 @app.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get(user_id)
