@@ -83,6 +83,15 @@ def update_user(user_id):
     db.session.commit()
     return jsonify({'msg':'ok'}), 200
 
+@app.route('/user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        raise APIException('El usuario con id {} no existe'.format(user_id), status_code=400)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
+
 #Metodos de Tabla Planets
 
 @app.route('/planets', methods=['GET'])
@@ -142,31 +151,20 @@ def delete_planet(planet_id):
     db.session.commit()
     return jsonify({'msg':'ok'}), 200
 
-#Metodos de tabla People
+# Tabla People
 @app.route('/people', methods=['GET'])
 def get_people():
-    people = People.query.all()
-    people_list = list(map(lambda people_map: people_map.serialize(),people))
+    people = People.query.all()  
+    people_list = list(map(lambda people: people.serialize(), people))
     return jsonify(people_list), 200
 
-@app.route('people/<int:people_id>', methods=['GET'])
+@app.route('/people/<int:people_id>', methods=['GET'])
 def get_people_id(people_id):
     people = People.query.get(people_id)
     if people is None:
-        return jsonify({'msg':'People not found'}), 400
+        return jsonify({'msg': 'People not found'}), 400
     else:
-        return jsonify({'msg':'ok', 'inf': people.serialize()})
-
-
-
-@app.route('/user/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get(user_id)
-    if user is None:
-        raise APIException('El usuario con id {} no existe'.format(user_id), status_code=400)
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'msg':'ok'}), 200
+        return jsonify({'msg': 'ok', 'inf': people.serialize()})
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
