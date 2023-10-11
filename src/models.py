@@ -60,3 +60,20 @@ class People(db.Model):
             "hair_color": self.hair_color,
             
         }
+class Favorites_Planets(db.Model):
+    __tablename__='favorites_planets'
+    id = db.Column(db.Integer, primary_key=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
+    planets_relationship = db.relationship(Planets)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_relationship = db.relationship(Planets)
+    
+    def __repr__(self):
+        return '<Favorites_Planets %r>' % self.id
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "planet_id": self.planet_id,
+            "user_id": self.user_id,
+        } 
