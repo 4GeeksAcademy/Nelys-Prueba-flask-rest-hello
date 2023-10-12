@@ -169,18 +169,42 @@ def get_people_id(people_id):
 # Tablas favoritos  El resultado que me devuelve es en numero y supongo q debe ser en string
 @app.route('/user/<int:id_user>/favorites', methods=['GET'])
 def get_favorites_de_user_planet(id_user):
-    favorites_planet = Favorites_Planets.query.filter_by(user_id = id_user).all()
-    favorites_people = Favorites_People.query.filter_by(user_id = id_user).all()
+    favorites_planet = Favorites_Planets.query.filter_by(user_id = id_user)
+    favorites_people = Favorites_People.query.filter_by(user_id = id_user)
     favorites_list1 = list(map(lambda favorite: favorite.serialize(), favorites_planet))
     favorites_list2 = list(map(lambda favorite: favorite.serialize(), favorites_people))
     favorites_list1.extend(favorites_list2)
     return jsonify({'msg': 'ok', 'inf': favorites_list1})
 
-@app.route('/user/<int:id_user>/favorites', methods=['GET'])
-def get_favorites_de_user_people(id_user):
-    favorites = Favorites_People.query.filter_by(user_id = id_user).all()
-    favorites_list = list(map(lambda favorite: favorite.serialize(), favorites))
-    return jsonify({'msg': 'ok', 'inf': favorites_list})
+@app.route('/favorites_planets/<int:user_id>', methods=['POST'])
+def create_favorites_planets(user_id):
+    body = request.get_json(silent=True)
+    print(body)
+    if body is None:
+        return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
+    
+    new_favorite_planet = Favorites_Planets()
+    new_favorite_planet.planet_id = body['planet_id']
+    new_favorite_planet.user_id = body['user_id']
+    db.session.add(new_favorite_planet)
+    db.session.commit()
+
+    return jsonify({'msg': 'ok'}),200
+
+@app.route('/favorites_people/<int:user_id>', methods=['POST'])
+def create_favorites_people(user_id):
+    body = request.get_json(silent=True)
+    print(body)
+    if body is None:
+        return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
+    
+    new_favorite_people = Favorites_People()
+    new_favorite_people.people_id = body['people_id']
+    new_favorite_people.user_id = body['user_id']
+    db.session.add(new_favorite_people)
+    db.session.commit()
+
+    return jsonify({'msg': 'ok'}),200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
