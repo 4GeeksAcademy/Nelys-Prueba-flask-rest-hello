@@ -120,6 +120,8 @@ def create_planet():
     
     new_planet = Planets()
     new_planet.name = body['name']
+    new_planet.diameter = body['diameter']
+    new_planet.rotation_period = body['rotation_period']
     db.session.add(new_planet)
     db.session.commit()
 
@@ -165,6 +167,51 @@ def get_people_id(people_id):
         return jsonify({'msg': 'People not found'}), 400
     else:
         return jsonify({'msg': 'ok', 'inf': people.serialize()})
+    
+@app.route('/people', methods=['POST'])
+def create_people():
+    body = request.get_json(silent=True)
+    print(body)
+    if body is None:
+        return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
+    if 'name' not in body:
+        return jsonify({'msg': 'Debes enviar un nombre en el body'}), 400
+    
+    new_people = People()
+    new_people.name = body['name']
+    new_people.height = body['height']
+    new_people.mass = body['mass']
+    new_people.hair_color = body['hair_color']
+    db.session.add(new_people)
+    db.session.commit()
+
+    return jsonify({'msg': 'ok'}),200
+
+@app.route('/people/<int:people_id>', methods=['PUT'])
+def update_people(people_id):
+    people = People.query.get(people_id)
+    if people is None:
+        return jsonify({'msg': 'El personaje de id:{} no existe'.format(people_id)})
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
+    if 'name' in body:
+        people.name = body['name']
+    if 'height' in body:
+        people.height = body['height']
+    if 'mass' in body:
+        people.mass = body['mass']
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
+
+@app.route('/people/<int:people_id>', methods=['DELETE'])
+def delete_people(people_id):
+    people = People.query.get(people_id)
+    if people is None:
+        raise APIException('El personaje con id {} no existe'.format(people_id), status_code=400)
+    db.session.delete(people)
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
     
 # Tablas favoritos  El resultado que me devuelve es en numero y supongo q debe ser en string
 @app.route('/user/<int:id_user>/favorites', methods=['GET'])
