@@ -58,9 +58,13 @@ def create_user():
         return jsonify({'msg': 'Debes enviar informacion en el body'}), 400
     if 'name' not in body:
         return jsonify({'msg': 'Debes enviar un nombre en el body'}), 400
+    if 'email' not in body:
+        return jsonify({'msg': 'Debes enviar un email en el body'}), 400
+    if 'password' not in body:
+        return jsonify({'msg': 'Debes enviar un nombre en el body'}), 400
     
-    new_user = User()
-    new_user.name = body['name']
+    new_user = User(name=body['name'], email=body['email'], password=body['password'],is_active=True)
+    
     db.session.add(new_user)
     db.session.commit()
 
@@ -232,11 +236,19 @@ def create_favorites_planets(user_id):
     
     new_favorite_planet = Favorites_Planets()
     new_favorite_planet.planet_id = body['planet_id']
-    new_favorite_planet.user_id = body['user_id']
+    new_favorite_planet.user_id = user_id
     db.session.add(new_favorite_planet)
     db.session.commit()
 
     return jsonify({'msg': 'ok'}),200
+@app.route('/favorites_planets/<int:favorite_planets_id>', methods=['DELETE'])
+def delete_favorites_planets(favorite_planets_id):
+    favorites_planets = Favorites_Planets.query.get(favorite_planets_id)
+    if favorite_planets_id is None:
+        raise APIException('La relacion de favoritos planetas con id {} no existe'.format(favorite_planets_id), status_code=400)
+    db.session.delete(favorites_planets)
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
 
 @app.route('/favorites_people/<int:user_id>', methods=['POST'])
 def create_favorites_people(user_id):
@@ -252,6 +264,15 @@ def create_favorites_people(user_id):
     db.session.commit()
 
     return jsonify({'msg': 'ok'}),200
+
+@app.route('/favorites_people/<int:favorite_people_id>', methods=['DELETE'])
+def delete_favorites_people(favorite_people_id):
+    favorites_people = Favorites_People.query.get(favorite_people_id)
+    if favorite_people_id is None:
+        raise APIException('La relacion de favoritos planetas con id {} no existe'.format(favorite_people_id), status_code=400)
+    db.session.delete(favorites_people)
+    db.session.commit()
+    return jsonify({'msg':'ok'}), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
